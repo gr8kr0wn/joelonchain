@@ -713,7 +713,6 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div class="socials reveal">
       <a href="https://x.com/Joelonchain" target="_blank" class="soc">𝕏 Twitter</a>
       <a href="https://t.me/Joelon_chain" target="_blank" class="soc">✈ Telegram</a>
-      <!-- <a href="https://discord.com/users/joelonchain" target="_blank" class="soc">◈ Discord</a> -->
       <a href="https://t.me/JoelonchainPow" target="_blank" class="soc">⚡ Portfolio</a>
     </div>
     <a href="https://t.me/Joelon_chain" target="_blank" class="btn-red reveal" style="font-size:.78rem;padding:1rem 3rem;">Connect Now</a>
@@ -721,7 +720,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 </section>
 
 <footer>
-  <p>© 2025 <em>JOELONCHAIN</em> — All Rights Reserved</p>
+  <p>© 2026 <em>JOELONCHAIN</em> — All Rights Reserved</p>
   <p>Web3 Growth <em>·</em> KOL <em>·</em> Community Builder</p>
 </footer>
 
@@ -923,9 +922,9 @@ function applyData(data) {
     srvGrid.querySelectorAll('.reveal').forEach(el => obs.observe(el));
   }
 
-  // Experience
+  // Experience — only rebuild if called from admin save (not on init)
   const expGrid = document.getElementById('live-exp-grid');
-  if(expGrid) {
+  if(expGrid && expGrid.dataset.adminRendered) {
     expGrid.innerHTML = data.experience.map((e, i) => {
       const typeCheck = `tab==='all'||tab==='${e.type}'`;
       return `<div class="exp-card" x-show="${typeCheck}" onclick="openMissionPopup(${i})">
@@ -1152,6 +1151,8 @@ function adminSave() {
     image: _imgData || loadData().image
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  const expGrid = document.getElementById('live-exp-grid');
+  if(expGrid) expGrid.dataset.adminRendered = '1';
   applyData(data);
   showToast('✔ Changes saved & applied!');
 }
@@ -1159,7 +1160,9 @@ function adminSave() {
 // ── MISSION POPUP ──
 let _missionData = [];
 function openMissionPopup(i) {
-  const data = loadData();
+  // Always use defaultData for static cards (no admin override needed for images)
+  const saved = localStorage.getItem(STORAGE_KEY);
+  const data = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(defaultData));
   _missionData = data.experience;
   const e = _missionData[i];
   if(!e) return;
